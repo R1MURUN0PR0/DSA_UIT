@@ -34,14 +34,14 @@ int main()
         arrays[0][i] = dist(gen);
     }
     sort(arrays[0].begin(), arrays[0].end());
-    saveToFile(arrays[0], "C:\\Users\\cuong\\Dropbox\\DSA_UIT\\Sorting_Report\\testcase\\testcase1.txt");
+    saveToFile(arrays[0], "testcase1.txt");
 
     // Tạo dãy 2 với tính chất giảm dần
     for (int i = 0; i < testcase_size; i++) {
         arrays[1][i] = dist(gen);
     }
     sort(arrays[1].rbegin(), arrays[1].rend());
-    saveToFile(arrays[1], "C:\\Users\\cuong\\Dropbox\\DSA_UIT\\Sorting_Report\\testcase\\testcase2.txt");
+    saveToFile(arrays[1], "testcase2.txt");
 
     // Tạo 8 dãy với thứ tự ngẫu nhiên
     for (int i = 3; i <= number_tests; i++)
@@ -50,7 +50,7 @@ int main()
         {
             arrays[i][j] = dist(gen);
         }
-        saveToFile(arrays[i], "C:\\Users\\cuong\\Dropbox\\DSA_UIT\\Sorting_Report\\testcase\\testcase" + to_string(i) + ".txt");
+        saveToFile(arrays[i], "testcase" + to_string(i) + ".txt");
     }
     cout << "Done" << endl;
     return 0;
