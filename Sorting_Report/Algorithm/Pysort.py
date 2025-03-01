@@ -2,7 +2,7 @@ import numpy
 import time
 
 # Đọc file lấy mảng
-with open("C:\\Users\\cuong\\Dropbox\\DSA_UIT\\Sorting_Report\\testcase\\testcase1.txt", "r") as f:
+with open("testcase1.txt", "r") as f:
     data = f.read().split("\n")
     arr = [float(x) for x in data]
 # Bấm giờ
