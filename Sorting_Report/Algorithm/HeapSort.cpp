@@ -46,7 +46,7 @@ int main()
 {
     vector<double> arr;
     // Đọc file và lưu trữ vào mảng arr
-    ifstream file("C:\\Users\\cuong\\Dropbox\\DSA_UIT\\Sorting_Report\\testcase\\testcase1.txt");
+    ifstream file("testcase1.txt");
     double num;
     while (file >> num)
         arr.push_back(num);
