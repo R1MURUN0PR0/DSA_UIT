@@ -1,0 +1,118 @@
+def find_key_from_pattern(ciphertext, plaintext_pattern, pattern_pos=0, max_key_length=10):
+    """
+    Tìm khóa khởi tạo từ ciphertext và một phần plaintext đã biết.
+    - ciphertext: Chuỗi mã hóa
+    - plaintext_pattern: Đoạn plaintext đã biết (e.g., 'texsaw{')
+    - pattern_pos: Vị trí bắt đầu của pattern trong plaintext (mặc định 0)
+    - max_key_length: Độ dài khóa tối đa để thử
+    """
+    ciphertext = ciphertext.upper()
+    plaintext_pattern = plaintext_pattern.upper()
+    
+    # Danh sách các khóa khả thi
+    possible_keys = []
+    
+    # Thử các độ dài khóa từ 1 đến max_key_length
+    for key_length in range(1, max_key_length + 1):
+        key = []
+        valid_key = True
+        
+        # Tính khóa cho các ký tự đầu tiên của pattern
+        for i in range(min(len(plaintext_pattern), key_length)):
+            c = ciphertext[pattern_pos + i]
+            p = plaintext_pattern[i]
+            if not (c.isalpha() and p.isalpha()):
+                valid_key = False
+                break
+            c_num = ord(c) - ord('A')
+            p_num = ord(p) - ord('A')
+            k_num = (c_num - p_num) % 26
+            key.append(chr(k_num + ord('A')))
+        
+        # Nếu pattern dài hơn key_length, kiểm tra Autokey property
+        if valid_key and len(plaintext_pattern) > key_length:
+            for i in range(key_length, len(plaintext_pattern)):
+                c = ciphertext[pattern_pos + i]
+                p = plaintext_pattern[i]
+                if not (c.isalpha() and p.isalpha()):
+                    valid_key = False
+                    break
+                c_num = ord(c) - ord('A')
+                p_num = ord(p) - ord('A')
+                # Trong Autokey, K_{m+i} = P_i
+                expected_p_prev = plaintext_pattern[i - key_length]
+                expected_k_num = ord(expected_p_prev) - ord('A')
+                k_num = (c_num - p_num) % 26
+                if k_num != expected_k_num:
+                    valid_key = False
+                    break
+        
+        if valid_key:
+            possible_keys.append(''.join(key) if key else '')
+    
+    return possible_keys
+
+def autokey_decrypt(ciphertext, key):
+    """
+    Giải mã Autokey Cipher với khóa khởi tạo.
+    """
+    ciphertext = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    key = ''.join(c for c in key.upper() if c.isalpha())
+    
+    plaintext = []
+    extended_key = list(key)
+    key_index = 0
+    
+    for c in ciphertext:
+        c_num = ord(c) - ord('A')
+        k = extended_key[key_index]
+        k_num = ord(k) - ord('A')
+        p_num = (c_num - k_num) % 26
+        p = chr(p_num + ord('A'))
+        plaintext.append(p)
+        extended_key.append(p)
+        key_index += 1
+    
+    return ''.join(plaintext)
+
+def main():
+    # Ciphertext từ bài toán
+    ciphertext = "GMCAIVQOQYMDMRAWSRLTDXGFHHAKXEWKARAXKNPMSLZANWXLXIJWAXKIPRSRKHKNPATERXVVHRKNHLXYKNVPWLBTPIQOQAEALOZHAXKUOXXEWKWLMPCIPXWQLOBBRALHAEIKYTDHJQZEGXCQZEJWMSADAMLBEEOLEDWIJMSPWGIXRQKOBMLBCEULMWWTDXRRKEWEMQLLAUMQGFBKINMEJVCXFAHRWFKTKYMKVTDXOBQOJVIVGUDTZBLHADIVATOIVBLTULMJHLABHLFTNXEIDYJXIALOPXPIQOQMLXLTDHYDZSEGGBQOQKIXDRATHVZENXEKQWWRMPMPLHWBQOQTVBZENXXLXIJWXEWFHTKTWLHBAFDLPXPIQOQPLXLTDXJISGELXEWFHTKFKOIZLBQYKNJLMNZFI"
+    
+    # Pattern plaintext (giả định)
+    plaintext_pattern = "texsaw{"
+    
+    # Tìm các khóa khả thi
+    print("Tìm khóa với pattern:", plaintext_pattern)
+    possible_keys = find_key_from_pattern(ciphertext, plaintext_pattern, pattern_pos=0, max_key_length=10)
+    
+    print("Các khóa khả thi:", possible_keys)
+    
+    # Thử giải mã với từng khóa
+    for key in possible_keys:
+        if key:
+            decrypted = autokey_decrypt(ciphertext, key)
+            print(f"\nKhóa: {key}")
+            print(f"Plaintext: {decrypted[:50]}...")  # In 50 ký tự đầu
+            # Kiểm tra flag
+            if "TEXSAW" in decrypted:
+                flag_start = decrypted.lower().find("texsaw")
+                flag_end = decrypted.find("}", flag_start)
+                if flag_start != -1 and flag_end != -1:
+                    flag = decrypted[flag_start:flag_end + 1].lower()
+                    print(f"Flag tìm thấy: texsaw{{{flag[7:-1]}}}")
+    
+    # Thử khóa thủ công nếu cần
+    manual_key = input("\nNhập khóa thủ công để thử (hoặc Enter để bỏ qua): ")
+    if manual_key:
+        decrypted = autokey_decrypt(ciphertext, manual_key)
+        print(f"Plaintext với khóa {manual_key}: {decrypted[:50]}...")
+        if "TEXSAW" in decrypted:
+            flag_start = decrypted.lower().find("texsaw")
+            flag_end = decrypted.find("}", flag_start)
+            if flag_start != -1 and flag_end != -1:
+                flag = decrypted[flag_start:flag_end + 1].lower()
+                print(f"Flag tìm thấy: texsaw{{{flag[7:-1]}}}")
+
+if __name__ == "__main__":
+    main()
